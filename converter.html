@@ -86,14 +86,17 @@
             color: var(--color-bkg-dark);
         }
 
-        /* DROPZONE */
-        #drop-zone {
-            border: 3px dashed var(--color-accent-yellow);
+        /* DROPZONE & PASTE ZONE */
+        .input-box {
             border-radius: 20px;
             background-color: rgba(26, 41, 66, 0.8);
-            cursor: pointer;
             color: var(--color-text-white);
             transition: all 0.3s ease;
+        }
+
+        #drop-zone {
+            border: 3px dashed var(--color-accent-yellow);
+            cursor: pointer;
         }
         #drop-zone:hover {
             background-color: rgba(255, 215, 0, 0.1);
@@ -101,6 +104,29 @@
             transform: scale(1.01);
         }
         #drop-zone svg { color: var(--color-accent-yellow); }
+
+        /* Nieuwe Paste Zone Styling */
+        #paste-area {
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            min-height: 100px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            outline: none;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+        #paste-area:focus {
+            border-color: var(--color-accent-yellow);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        /* Placeholder trick voor contenteditable div */
+        #paste-area:empty:before {
+            content: attr(data-placeholder);
+            color: rgba(255,255,255, 0.5);
+            font-style: italic;
+        }
+
 
         /* RESULTAAT VAKKEN */
         .card {
@@ -155,6 +181,21 @@
         #rendered img { max-width: 100%; height: auto; }
         
         .spinner-border { color: var(--color-accent-yellow); }
+        
+        .or-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            margin: 20px 0;
+        }
+        .or-divider::before, .or-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .or-divider:not(:empty)::before { margin-right: .5em; }
+        .or-divider:not(:empty)::after { margin-left: .5em; }
 
     </style>
   </head>
@@ -175,21 +216,33 @@
 
       <div id="input-section" class="container" style="max-width: 800px;">
         <div class="text-center mb-4">
-             <h2 class="fw-light">Zet Word & PDF om naar Markdown</h2>
+             <h2 class="fw-light">Zet Word, PDF of Tekst om naar Markdown</h2>
         </div>
         
-        <div id="drop-zone" class="p-5 text-center shadow-lg">
-            <div class="mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-cloud-arrow-up" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2z"/>
-                    <path d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"/>
-                </svg>
-            </div>
-            <h3 class="mb-3">Sleep Word of PDF hierheen</h3>
-            <p class="text-muted mb-4" style="color: rgba(255,255,255,0.7) !important;">of klik om te bladeren</p>
+        <div class="input-box p-4 shadow-lg">
             
-            <button type="button" class="btn btn-yellow btn-lg">Kies bestand</button>
-            <input type="file" id="file-input" style="display: none;" accept=".docx,.pdf">
+            <div id="drop-zone" class="p-4 text-center rounded">
+                <div class="mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-cloud-arrow-up" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2z"/>
+                        <path d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"/>
+                    </svg>
+                </div>
+                <h4 class="mb-2">Sleep bestand hierheen</h4>
+                <p class="text-muted small mb-3" style="color: rgba(255,255,255,0.7) !important;">.docx of .pdf</p>
+                <button type="button" class="btn btn-yellow">Kies bestand</button>
+                <input type="file" id="file-input" style="display: none;" accept=".docx,.pdf">
+            </div>
+
+            <div class="or-divider">OF</div>
+
+            <div>
+                <div id="paste-area" contenteditable="true" data-placeholder="Plak hier je tekst met opmaak (Ctrl+V)..."></div>
+                <div class="text-end mt-2">
+                    <small class="text-muted" style="color: rgba(255,255,255,0.5) !important;">Tekst wordt direct omgezet</small>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -200,9 +253,9 @@
 
     <div id="results" class="d-none container-fluid" style="max-width: 1400px;">
         <div class="text-center mb-4">
-            <h2 id="filename" style="color: var(--color-accent-yellow); font-weight: bold;">Bestandsnaam.docx</h2>
+            <h2 id="filename" style="color: var(--color-accent-yellow); font-weight: bold;">Gekopieerde Tekst</h2>
             <button onclick="location.reload()" class="btn btn-outline-yellow mt-2">
-                ↺ Ander bestand converteren
+                ↺ Nieuw bestand / tekst
             </button>
         </div>
 
@@ -246,51 +299,62 @@
 
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
+        const pasteArea = document.getElementById('paste-area');
         
         let turndownService;
         if (typeof TurndownService !== 'undefined') {
             turndownService = new TurndownService({ headingStyle: 'atx' });
         }
 
-        // --- Event Listeners ---
-        
-        // Klik op de dropzone opent bestandskiezer
-        dropZone.addEventListener('click', () => {
-            fileInput.click();
-        });
+        // --- Event Listeners: BESTANDEN ---
+        dropZone.addEventListener('click', () => fileInput.click());
         
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) processFile(e.target.files[0]);
         });
 
-        // Drag & Drop
         dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dropZone.classList.add('dragover');
+            e.preventDefault(); e.stopPropagation(); dropZone.classList.add('dragover');
         });
-
-        // Hier zat de fout in de vorige versie (de extra puntkomma is nu weg)
         dropZone.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dropZone.classList.remove('dragover');
+            e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('dragover');
         });
-
         dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dropZone.classList.remove('dragover');
+            e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('dragover');
             if (e.dataTransfer.files.length > 0) processFile(e.dataTransfer.files[0]);
         });
 
+        // --- Event Listeners: PLAKKEN ---
+        pasteArea.addEventListener('paste', (e) => {
+            // We wachten heel even tot de tekst in de div staat (browser default behaviour)
+            setTimeout(() => {
+                const htmlContent = pasteArea.innerHTML;
+                if (htmlContent.trim().length > 0) {
+                    processPastedText(htmlContent);
+                }
+            }, 100);
+        });
+
         // --- Logica ---
+        
+        // Verwerken van tekst/HTML paste
+        function processPastedText(html) {
+            switchToResultsMode("Gekopieerde Tekst");
+            
+            // Turndown converteert de HTML naar Markdown
+            const md = turndownService.turndown(html);
+            
+            document.getElementById('output').textContent = md;
+            document.getElementById('rendered').innerHTML = html;
+        }
+
+        // Verwerken van bestanden
         async function processFile(file) {
+            // Eerst UI resetten
             document.getElementById('error-box').classList.add('d-none');
             document.getElementById('input-section').classList.add('d-none');
             document.getElementById('loading').classList.remove('d-none');
-            document.getElementById('filename').innerText = file.name;
-
+            
             try {
                 const fileType = file.name.split('.').pop().toLowerCase();
                 if (fileType === 'docx') {
@@ -301,8 +365,7 @@
                     throw new Error("Alleen .docx en .pdf bestanden worden ondersteund.");
                 }
                 
-                document.getElementById('loading').classList.add('d-none');
-                document.getElementById('results').classList.remove('d-none');
+                switchToResultsMode(file.name);
 
             } catch (error) {
                 console.error(error);
@@ -312,6 +375,13 @@
                 document.getElementById('loading').classList.add('d-none');
                 document.getElementById('input-section').classList.remove('d-none');
             }
+        }
+
+        function switchToResultsMode(title) {
+            document.getElementById('loading').classList.add('d-none');
+            document.getElementById('input-section').classList.add('d-none');
+            document.getElementById('results').classList.remove('d-none');
+            document.getElementById('filename').innerText = title;
         }
 
         function handleDocx(file) {
@@ -353,7 +423,7 @@
 
         // Kopieer knop
         document.getElementById('copy-button').addEventListener('click', (e) => {
-            e.stopPropagation(); // Voorkom andere kliks
+            e.stopPropagation(); 
             const text = document.getElementById('output').textContent;
             navigator.clipboard.writeText(text).then(() => {
                 const btn = document.getElementById('copy-button');
